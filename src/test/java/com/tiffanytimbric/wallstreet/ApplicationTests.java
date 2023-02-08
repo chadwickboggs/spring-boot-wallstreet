@@ -1,6 +1,5 @@
-package com.tiffanytimbric.springboot;
+package com.tiffanytimbric.wallstreet;
 
-import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 
