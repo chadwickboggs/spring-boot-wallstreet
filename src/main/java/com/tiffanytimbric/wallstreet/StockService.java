@@ -23,6 +23,18 @@ public class StockService {
         return Flux.just( stock );
     }
 
+    public Flux<Stock> updateStock( @NonNull final Stock stock ) {
+        if ( !stocks.containsKey( stock ) ) {
+            return addStock( stock );
+        }
+
+        validate( stock );
+
+        stocks.put( stock.getName(), stock );
+
+        return Flux.just( stock );
+    }
+
     public boolean containsStock( @NonNull final Stock stock ) {
         return containsStock( stock.getName() );
     }
@@ -40,6 +52,14 @@ public class StockService {
         stocks.remove( name );
 
         return Flux.just( stock );
+    }
+
+    public Flux<Stock> removeAllStocks() {
+        final Stock[] removedStocks = stocks.values().toArray( new Stock[0] ).clone();
+
+        stocks.clear();
+
+        return Flux.just( removedStocks );
     }
 
     public Flux<Stock> removeStock( @NonNull final String name ) {
