@@ -1,20 +1,21 @@
 package com.tiffanytimbric.wallstreet;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Collections;
+import java.time.Duration;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class StockService {
 
-    private final Map<String, Stock> stocks = Collections.synchronizedMap( new HashMap<>() );
+    @Autowired
+    private StockReactiveCrudRepository stockRepository;
 
 
     @NonNull
@@ -22,36 +23,27 @@ public class StockService {
         validateFull( stock );
 
         stock.setCreateDate( new Date() );
-        stocks.put( stock.getName(), stock );
+        stockRepository.save( stock );
 
         return Mono.just( stock );
     }
 
     @NonNull
     public Mono<Stock> updateStock( @NonNull final Stock stock ) {
-        if ( !stocks.containsKey( stock.getName() ) ) {
-            return addStock( stock );
-        }
-
         validateFull( stock );
 
-        stock.setCreateDate( stocks.get( stock.getName() ).getCreateDate() );
+        final Stock existingStock = getStockByName( stock.getName() );
+        stock.setCreateDate( existingStock.getCreateDate() );
         stock.setUpdateDate( new Date() );
-        stocks.put( stock.getName(), stock );
 
-        return Mono.just( stock );
+        return stockRepository.save( stock );
     }
 
     @NonNull
     public Mono<Stock> patchStock( @NonNull final Stock stock ) {
-        final String name = stock.getName();
-        if ( !stocks.containsKey( name ) ) {
-            return addStock( stock );
-        }
-
         validatePatch( stock );
 
-        final Stock existingStock = stocks.get( name );
+        final Stock existingStock = getStockByName( stock.getName() );
         double price = stock.getPrice();
         if ( price > 0.0D ) {
             existingStock.setPrice( price );
@@ -67,73 +59,43 @@ public class StockService {
     }
 
     public boolean containsStock( @NonNull final String stockName ) {
-        return stocks.containsKey( stockName );
+        final Optional<Stock> stockOpt = stockRepository.findByName( stockName )
+                .blockOptional( Duration.ZERO );
+
+        return stockOpt.isPresent();
     }
 
     @NonNull
-    public Flux<Stock> removeStock( @NonNull final Stock stock ) {
-        final String name = stock.getName();
-        if ( !stocks.containsKey( name ) ) {
-            return Flux.empty();
-        }
+    public Mono<Stock> removeStock( @NonNull final Stock stock ) {
+        final Stock deletedStock = getStockByName( stock.getName() );
 
-        stocks.remove( name );
+        stockRepository.deleteByName( stock.getName() );
 
-        return Flux.just( stock );
+        return Mono.just( deletedStock );
     }
 
     @NonNull
-    public Flux<Stock> removeAllStocks() {
-        final Stock[] removedStocks = stocks.values().toArray( new Stock[0] ).clone();
-
-        stocks.clear();
-
-        return Flux.just( removedStocks );
+    public Mono<Void> removeAllStocks() {
+        return stockRepository.deleteAll();
     }
 
     @NonNull
     public Flux<Stock> removeStock( @NonNull final String name ) {
-        if ( !stocks.containsKey( name ) ) {
-            return Flux.empty();
-        }
+        final Stock deletedStock = getStockByName( name );
 
-        final Stock stock = stocks.get( name );
-        stocks.remove( name );
+        stockRepository.deleteByName( name );
 
-        return Flux.just( stock );
-    }
-
-    @NonNull
-    public Mono<StockAuditInfo> infoByName( @NonNull final String name ) {
-        if ( !stocks.containsKey( name ) ) {
-            return Mono.empty();
-        }
-
-        final Stock stock = stocks.get( name );
-        final StockAuditInfo stockAuditInfo = new StockAuditInfo();
-        stockAuditInfo.setName( stock.getName() );
-        stockAuditInfo.setCreateDate( stock.getCreateDate() );
-        stockAuditInfo.setUpdateDate( stock.getUpdateDate() );
-
-        return Mono.just( stockAuditInfo );
+        return Flux.just( deletedStock );
     }
 
     @NonNull
     public Mono<Stock> findByName( @NonNull final String name ) {
-        if ( !stocks.containsKey( name ) ) {
-            return Mono.empty();
-        }
-
-        return Mono.just( stocks.get( name ) );
+        return stockRepository.findByName( name );
     }
 
     @NonNull
     public Flux<Stock> findAll() {
-        if ( stocks.isEmpty() ) {
-            return Flux.empty();
-        }
-
-        return Flux.just( stocks.values().toArray( new Stock[0] ) );
+        return stockRepository.findAll();
     }
 
     private void validateFull( @NonNull final Stock stock ) {
@@ -145,6 +107,18 @@ public class StockService {
                     "Parameter \"price\" must have a positive value.  Value: %g", price
             ) );
         }
+    }
+
+    @NonNull
+    private Stock getStockByName( @NonNull final String name ) {
+        final Optional<Stock> existingStockOpt = findByName( name ).blockOptional( Duration.ZERO );
+        if ( !existingStockOpt.isPresent() ) {
+            throw new IllegalArgumentException( String.format(
+                    "Stock not found.  Name: %s", name
+            ) );
+        }
+
+        return existingStockOpt.get();
     }
 
     private void validatePatch( @NonNull final Stock stock ) {

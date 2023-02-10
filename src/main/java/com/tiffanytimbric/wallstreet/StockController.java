@@ -15,18 +15,6 @@ public class StockController {
     @Autowired
     private StockService stockService;
 
-    @RequestMapping(
-            path = "/stock/{name}",
-            method = RequestMethod.HEAD,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    @NonNull
-    public Mono<StockAuditInfo> infoStock(
-            @PathVariable @NonNull final String name
-    ) {
-        return stockService.infoByName( name );
-    }
-
     @PostMapping(
             path = "/stock",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -68,7 +56,7 @@ public class StockController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @NonNull
-    public Flux<Stock> removeAllStocks() {
+    public Mono<Void> removeAllStocks() {
         return stockService.removeAllStocks();
     }
 
@@ -78,11 +66,11 @@ public class StockController {
     )
     @NonNull
     public Flux<Stock> removeStock(
-            @PathVariable( required = false ) @NonNull final Optional<String> name
+            @PathVariable @NonNull final Optional<String> name
     ) {
         return name
                 .map( theName -> stockService.removeStock( name.get() ) )
-                .orElseGet( () -> stockService.removeAllStocks() );
+                .orElseThrow();
     }
 
     @GetMapping(
@@ -101,11 +89,11 @@ public class StockController {
     )
     @NonNull
     public Flux<Stock> findStock(
-            @PathVariable( required = false ) @NonNull final Optional<String> name
+            @PathVariable @NonNull final Optional<String> name
     ) {
         return name
                 .map( theName -> stockService.findByName( theName ).flux() )
-                .orElseGet( () -> stockService.findAll() );
+                .orElseThrow();
 
     }
 

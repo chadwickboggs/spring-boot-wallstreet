@@ -12,4 +12,18 @@ public class Application {
         SpringApplication.run( Application.class, args );
     }
 
+/*
+    @Bean
+    @NonNull
+    ConnectionFactoryInitializer initializer( @NonNull final ConnectionFactory connectionFactory ) {
+
+        final ConnectionFactoryInitializer initializer = new ConnectionFactoryInitializer();
+        initializer.setConnectionFactory( connectionFactory );
+        initializer.setDatabasePopulator( new ResourceDatabasePopulator( new ClassPathResource(
+                "schema.sql"
+        ) ) );
+
+        return initializer;
+    }
+*/
 }
