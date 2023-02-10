@@ -1,9 +1,9 @@
 package com.tiffanytimbric.wallstreet;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-import reactor.util.annotation.NonNull;
 
 import java.util.Collections;
 import java.util.Date;
@@ -16,6 +16,7 @@ public class StockService {
     private final Map<String, Stock> stocks = Collections.synchronizedMap( new HashMap<>() );
 
 
+    @NonNull
     public Flux<Stock> addStock( @NonNull final Stock stock ) {
         validateFull( stock );
 
@@ -25,6 +26,7 @@ public class StockService {
         return Flux.just( stock );
     }
 
+    @NonNull
     public Flux<Stock> updateStock( @NonNull final Stock stock ) {
         if ( !stocks.containsKey( stock.getName() ) ) {
             return addStock( stock );
@@ -38,6 +40,7 @@ public class StockService {
         return Flux.just( stock );
     }
 
+    @NonNull
     public Flux<Stock> patchStock( @NonNull final Stock stock ) {
         final String name = stock.getName();
         if ( !stocks.containsKey( name ) ) {
@@ -65,6 +68,7 @@ public class StockService {
         return stocks.containsKey( stockName );
     }
 
+    @NonNull
     public Flux<Stock> removeStock( @NonNull final Stock stock ) {
         final String name = stock.getName();
         if ( !stocks.containsKey( name ) ) {
@@ -76,6 +80,7 @@ public class StockService {
         return Flux.just( stock );
     }
 
+    @NonNull
     public Flux<Stock> removeAllStocks() {
         final Stock[] removedStocks = stocks.values().toArray( new Stock[0] ).clone();
 
@@ -84,6 +89,7 @@ public class StockService {
         return Flux.just( removedStocks );
     }
 
+    @NonNull
     public Flux<Stock> removeStock( @NonNull final String name ) {
         if ( !stocks.containsKey( name ) ) {
             return Flux.empty();
