@@ -5,6 +5,7 @@ import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
@@ -14,13 +15,25 @@ public class StockController {
     @Autowired
     private StockService stockService;
 
+    @RequestMapping(
+            path = "/stock/{name}",
+            method = RequestMethod.HEAD,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @NonNull
+    public Mono<StockAuditInfo> infoStock(
+            @PathVariable @NonNull final String name
+    ) {
+        return stockService.infoByName( name );
+    }
+
     @PostMapping(
             path = "/stock",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @NonNull
-    public Flux<Stock> addStock(
+    public Mono<Stock> addStock(
             @RequestBody @NonNull final Stock stock
     ) {
         return stockService.addStock( stock );
@@ -32,7 +45,7 @@ public class StockController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @NonNull
-    public Flux<Stock> updateStock(
+    public Mono<Stock> updateStock(
             @RequestBody @NonNull final Stock stock
     ) {
         return stockService.updateStock( stock );
@@ -44,7 +57,7 @@ public class StockController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @NonNull
-    public Flux<Stock> patchStock(
+    public Mono<Stock> patchStock(
             @RequestBody @NonNull final Stock stock
     ) {
         return stockService.patchStock( stock );

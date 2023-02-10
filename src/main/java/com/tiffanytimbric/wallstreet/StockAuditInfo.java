@@ -3,20 +3,19 @@ package com.tiffanytimbric.wallstreet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.springframework.boot.jackson.JsonComponent;
-import org.springframework.lang.NonNull;
+import reactor.util.annotation.Nullable;
 
-@JsonComponent
-public class Stock extends StockAuditInfo {
+public class StockAuditInfo extends AuditInfo {
 
-    private double price = 0.0D;
+    protected String name;
 
-    public double getPrice() {
-        return price;
+    @Nullable
+    public String getName() {
+        return name;
     }
 
-    public void setPrice( double price ) {
-        this.price = price;
+    public void setName( @Nullable final String name ) {
+        this.name = name;
     }
 
     @Override
@@ -30,27 +29,26 @@ public class Stock extends StockAuditInfo {
         if ( obj.getClass() != getClass() ) {
             return false;
         }
-        Stock rhs = (Stock) obj;
+        StockAuditInfo rhs = (StockAuditInfo) obj;
         return new EqualsBuilder()
+                .appendSuper( super.equals( obj ) )
                 .append( this.name, rhs.name )
-                .append( this.price, rhs.price )
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
+                .appendSuper( super.hashCode() )
                 .append( name )
-                .append( price )
                 .toHashCode();
     }
 
     @Override
-    @NonNull
     public String toString() {
         return new ToStringBuilder( this )
+                .appendSuper( super.toString() )
                 .append( "name", name )
-                .append( "price", price )
                 .toString();
     }
 }

@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.Date;
@@ -17,31 +18,32 @@ public class StockService {
 
 
     @NonNull
-    public Flux<Stock> addStock( @NonNull final Stock stock ) {
+    public Mono<Stock> addStock( @NonNull final Stock stock ) {
         validateFull( stock );
 
         stock.setCreateDate( new Date() );
         stocks.put( stock.getName(), stock );
 
-        return Flux.just( stock );
+        return Mono.just( stock );
     }
 
     @NonNull
-    public Flux<Stock> updateStock( @NonNull final Stock stock ) {
+    public Mono<Stock> updateStock( @NonNull final Stock stock ) {
         if ( !stocks.containsKey( stock.getName() ) ) {
             return addStock( stock );
         }
 
         validateFull( stock );
 
+        stock.setCreateDate( stocks.get( stock.getName() ).getCreateDate() );
         stock.setUpdateDate( new Date() );
         stocks.put( stock.getName(), stock );
 
-        return Flux.just( stock );
+        return Mono.just( stock );
     }
 
     @NonNull
-    public Flux<Stock> patchStock( @NonNull final Stock stock ) {
+    public Mono<Stock> patchStock( @NonNull final Stock stock ) {
         final String name = stock.getName();
         if ( !stocks.containsKey( name ) ) {
             return addStock( stock );
@@ -57,7 +59,7 @@ public class StockService {
 
         existingStock.setUpdateDate( new Date() );
 
-        return Flux.just( existingStock );
+        return Mono.just( existingStock );
     }
 
     public boolean containsStock( @NonNull final Stock stock ) {
@@ -99,6 +101,21 @@ public class StockService {
         stocks.remove( name );
 
         return Flux.just( stock );
+    }
+
+    @NonNull
+    public Mono<StockAuditInfo> infoByName( @NonNull final String name ) {
+        if ( !stocks.containsKey( name ) ) {
+            return Mono.empty();
+        }
+
+        final Stock stock = stocks.get( name );
+        final StockAuditInfo stockAuditInfo = new StockAuditInfo();
+        stockAuditInfo.setName( stock.getName() );
+        stockAuditInfo.setCreateDate( stock.getCreateDate() );
+        stockAuditInfo.setUpdateDate( stock.getUpdateDate() );
+
+        return Mono.just( stockAuditInfo );
     }
 
     @NonNull
