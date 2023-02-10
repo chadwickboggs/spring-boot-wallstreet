@@ -49,14 +49,15 @@ public class StockController {
 
     @DeleteMapping(
             path = "/stock/{name}",
-            params = "name",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @NonNull
     public Flux<Stock> removeStock(
-            @PathVariable( required = false ) @NonNull final String name
+            @PathVariable( required = false ) @NonNull final Optional<String> name
     ) {
-        return stockService.removeStock( name );
+        return name
+                .map( theName -> stockService.removeStock( name.get() ) )
+                .orElseGet( () -> stockService.removeAllStocks() );
     }
 
     @GetMapping(
@@ -71,7 +72,6 @@ public class StockController {
 
     @GetMapping(
             path = "/stock/{name}",
-            params = "name",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @NonNull
