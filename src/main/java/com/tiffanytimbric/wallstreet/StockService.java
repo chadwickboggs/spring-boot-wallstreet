@@ -24,7 +24,7 @@ public class StockService {
     }
 
     public Flux<Stock> updateStock( @NonNull final Stock stock ) {
-        if ( !stocks.containsKey( stock ) ) {
+        if ( !stocks.containsKey( stock.getName() ) ) {
             return addStock( stock );
         }
 
