@@ -38,6 +38,18 @@ public class StockController {
         return stockService.updateStock( stock );
     }
 
+    @PatchMapping(
+            path = "/stock",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @NonNull
+    public Flux<Stock> patchStock(
+            @RequestBody @NonNull final Stock stock
+    ) {
+        return stockService.patchStock( stock );
+    }
+
     @DeleteMapping(
             path = "/stock",
             produces = MediaType.APPLICATION_JSON_VALUE

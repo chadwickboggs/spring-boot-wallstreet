@@ -16,7 +16,7 @@ public class StockService {
 
 
     public Flux<Stock> addStock( @NonNull final Stock stock ) {
-        validate( stock );
+        validateFull( stock );
 
         stocks.put( stock.getName(), stock );
 
@@ -28,11 +28,28 @@ public class StockService {
             return addStock( stock );
         }
 
-        validate( stock );
+        validateFull( stock );
 
         stocks.put( stock.getName(), stock );
 
         return Flux.just( stock );
+    }
+
+    public Flux<Stock> patchStock( @NonNull final Stock stock ) {
+        final String name = stock.getName();
+        if ( !stocks.containsKey( name ) ) {
+            return addStock( stock );
+        }
+
+        validatePatch( stock );
+
+        final Stock existingStock = stocks.get( name );
+        double price = stock.getPrice();
+        if ( price > 0.0D ) {
+            existingStock.setPrice( price );
+        }
+
+        return Flux.just( existingStock );
     }
 
     public boolean containsStock( @NonNull final Stock stock ) {
@@ -91,12 +108,21 @@ public class StockService {
         return Flux.just( stocks.values().toArray( new Stock[0] ) );
     }
 
-    private void validate( @NonNull final Stock stock ) {
+    private void validateFull( @NonNull final Stock stock ) {
+        validatePatch( stock );
+
+        double price = stock.getPrice();
+        if ( price <= 0.0D ) {
+            throw new IllegalArgumentException( String.format(
+                    "Parameter \"price\" must have a positive value.  Value: %g", price
+            ) );
+        }
+    }
+
+    private void validatePatch( @NonNull final Stock stock ) {
         final String name = stock.getName();
         if ( StringUtils.isBlank( name ) ) {
-            throw new IllegalArgumentException( String.format(
-                    "Parameter \"%s\" must be non-null and non-empty", name
-            ) );
+            throw new IllegalArgumentException( "Parameter \"name\" must be non-null and non-empty." );
         }
     }
 }
