@@ -6,6 +6,7 @@ import reactor.core.publisher.Flux;
 import reactor.util.annotation.NonNull;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ public class StockService {
     public Flux<Stock> addStock( @NonNull final Stock stock ) {
         validateFull( stock );
 
+        stock.setCreateDate( new Date() );
         stocks.put( stock.getName(), stock );
 
         return Flux.just( stock );
@@ -30,6 +32,7 @@ public class StockService {
 
         validateFull( stock );
 
+        stock.setUpdateDate( new Date() );
         stocks.put( stock.getName(), stock );
 
         return Flux.just( stock );
@@ -48,6 +51,8 @@ public class StockService {
         if ( price > 0.0D ) {
             existingStock.setPrice( price );
         }
+
+        existingStock.setUpdateDate( new Date() );
 
         return Flux.just( existingStock );
     }

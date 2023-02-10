@@ -5,29 +5,32 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.boot.jackson.JsonComponent;
 import org.springframework.lang.NonNull;
-import reactor.util.annotation.Nullable;
+import org.springframework.lang.Nullable;
+
+import java.util.Date;
 
 @JsonComponent
-public class Stock extends AuditInfo {
+public class AuditInfo {
 
-    private String name;
-    private double price = 0.0D;
+    private Date createDate;
+    private Date updateDate;
 
     @Nullable
-    public String getName() {
-        return name;
+    public Date getCreateDate() {
+        return createDate;
     }
 
-    public void setName( @Nullable final String name ) {
-        this.name = name;
+    public void setCreateDate( @Nullable final Date createDate ) {
+        this.createDate = createDate;
     }
 
-    public double getPrice() {
-        return price;
+    @Nullable
+    public Date getUpdateDate() {
+        return updateDate;
     }
 
-    public void setPrice( double price ) {
-        this.price = price;
+    public void setUpdateDate( @Nullable final Date updateDate ) {
+        this.updateDate = updateDate;
     }
 
     @Override
@@ -41,18 +44,18 @@ public class Stock extends AuditInfo {
         if ( obj.getClass() != getClass() ) {
             return false;
         }
-        Stock rhs = (Stock) obj;
+        AuditInfo rhs = (AuditInfo) obj;
         return new EqualsBuilder()
-                .append( this.name, rhs.name )
-                .append( this.price, rhs.price )
+                .append( this.createDate, rhs.createDate )
+                .append( this.updateDate, rhs.updateDate )
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-                .append( name )
-                .append( price )
+                .append( createDate )
+                .append( updateDate )
                 .toHashCode();
     }
 
@@ -60,8 +63,8 @@ public class Stock extends AuditInfo {
     @NonNull
     public String toString() {
         return new ToStringBuilder( this )
-                .append( "name", name )
-                .append( "price", price )
+                .append( "createDate", createDate )
+                .append( "updateDate", updateDate )
                 .toString();
     }
 }
