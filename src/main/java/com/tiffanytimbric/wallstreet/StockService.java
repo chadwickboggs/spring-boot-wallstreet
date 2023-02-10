@@ -119,12 +119,12 @@ public class StockService {
     }
 
     @NonNull
-    public Flux<Stock> findByName( @NonNull final String name ) {
+    public Mono<Stock> findByName( @NonNull final String name ) {
         if ( !stocks.containsKey( name ) ) {
-            return Flux.empty();
+            return Mono.empty();
         }
 
-        return Flux.just( stocks.get( name ) );
+        return Mono.just( stocks.get( name ) );
     }
 
     @NonNull

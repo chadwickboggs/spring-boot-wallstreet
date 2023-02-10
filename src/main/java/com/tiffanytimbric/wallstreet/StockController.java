@@ -104,7 +104,7 @@ public class StockController {
             @PathVariable( required = false ) @NonNull final Optional<String> name
     ) {
         return name
-                .map( theName -> stockService.findByName( theName ) )
+                .map( theName -> stockService.findByName( theName ).flux() )
                 .orElseGet( () -> stockService.findAll() );
 
     }
