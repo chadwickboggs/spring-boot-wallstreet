@@ -19,7 +19,7 @@ public class StockService {
 
 
     @NonNull
-    public Mono<Stock> addStock( @NonNull final Stock stock ) {
+    public Mono<Stock> add(@NonNull final Stock stock ) {
         validateFull( stock );
 
         stock.setCreateDate( new Date() );
@@ -29,10 +29,10 @@ public class StockService {
     }
 
     @NonNull
-    public Mono<Stock> updateStock( @NonNull final Stock stock ) {
+    public Mono<Stock> update(@NonNull final Stock stock ) {
         validateFull( stock );
 
-        final Stock existingStock = getStockByName( stock.getName() );
+        final Stock existingStock = getByName( stock.getName() );
         stock.setCreateDate( existingStock.getCreateDate() );
         stock.setUpdateDate( new Date() );
 
@@ -40,10 +40,10 @@ public class StockService {
     }
 
     @NonNull
-    public Mono<Stock> patchStock( @NonNull final Stock stock ) {
+    public Mono<Stock> patch(@NonNull final Stock stock ) {
         validatePatch( stock );
 
-        final Stock existingStock = getStockByName( stock.getName() );
+        final Stock existingStock = getByName( stock.getName() );
         double price = stock.getPrice();
         if ( price > 0.0D ) {
             existingStock.setPrice( price );
@@ -54,11 +54,11 @@ public class StockService {
         return Mono.just( existingStock );
     }
 
-    public boolean containsStock( @NonNull final Stock stock ) {
-        return containsStock( stock.getName() );
+    public boolean contains(@NonNull final Stock stock ) {
+        return contains( stock.getName() );
     }
 
-    public boolean containsStock( @NonNull final String stockName ) {
+    public boolean contains(@NonNull final String stockName ) {
         final Optional<Stock> stockOpt = stockRepository.findByName( stockName )
                 .blockOptional( Duration.ZERO );
 
@@ -67,7 +67,7 @@ public class StockService {
 
     @NonNull
     public Mono<Stock> removeStock( @NonNull final Stock stock ) {
-        final Stock deletedStock = getStockByName( stock.getName() );
+        final Stock deletedStock = getByName( stock.getName() );
 
         stockRepository.deleteByName( stock.getName() );
 
@@ -75,13 +75,13 @@ public class StockService {
     }
 
     @NonNull
-    public Mono<Void> removeAllStocks() {
+    public Mono<Void> removeAll() {
         return stockRepository.deleteAll();
     }
 
     @NonNull
-    public Flux<Stock> removeStock( @NonNull final String name ) {
-        final Stock deletedStock = getStockByName( name );
+    public Flux<Stock> removeByName(@NonNull final String name ) {
+        final Stock deletedStock = getByName( name );
 
         stockRepository.deleteByName( name );
 
@@ -110,7 +110,7 @@ public class StockService {
     }
 
     @NonNull
-    private Stock getStockByName( @NonNull final String name ) {
+    private Stock getByName(@NonNull final String name ) {
         final Optional<Stock> existingStockOpt = findByName( name ).blockOptional( Duration.ZERO );
         if ( !existingStockOpt.isPresent() ) {
             throw new IllegalArgumentException( String.format(

@@ -24,7 +24,7 @@ public class StockController {
     public Mono<Stock> addStock(
             @RequestBody @NonNull final Stock stock
     ) {
-        return stockService.addStock( stock );
+        return stockService.add( stock );
     }
 
     @PutMapping(
@@ -36,7 +36,7 @@ public class StockController {
     public Mono<Stock> updateStock(
             @RequestBody @NonNull final Stock stock
     ) {
-        return stockService.updateStock( stock );
+        return stockService.update( stock );
     }
 
     @PatchMapping(
@@ -48,7 +48,7 @@ public class StockController {
     public Mono<Stock> patchStock(
             @RequestBody @NonNull final Stock stock
     ) {
-        return stockService.patchStock( stock );
+        return stockService.patch( stock );
     }
 
     @DeleteMapping(
@@ -56,8 +56,8 @@ public class StockController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @NonNull
-    public Mono<Void> removeAllStocks() {
-        return stockService.removeAllStocks();
+    public Mono<Void> removeStockAll() {
+        return stockService.removeAll();
     }
 
     @DeleteMapping(
@@ -65,11 +65,11 @@ public class StockController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @NonNull
-    public Flux<Stock> removeStock(
+    public Flux<Stock> removeStockByName(
             @PathVariable @NonNull final Optional<String> name
     ) {
         return name
-                .map( theName -> stockService.removeStock( name.get() ) )
+                .map( theName -> stockService.removeByName( name.get() ) )
                 .orElseThrow();
     }
 
@@ -78,7 +78,7 @@ public class StockController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @NonNull
-    public Flux<Stock> findAllStocks() {
+    public Flux<Stock> findStockAll() {
         return stockService.findAll();
 
     }
@@ -88,7 +88,7 @@ public class StockController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @NonNull
-    public Flux<Stock> findStock(
+    public Flux<Stock> findStockByName(
             @PathVariable @NonNull final Optional<String> name
     ) {
         return name
